@@ -19,6 +19,6 @@ services:
       - DATABASE_URL=postgres://nattobean:nattopostgres@postgres/app_db
       - ROCKET_DATABASES={postgres={url=postgres://nattobean:nattopostgres@postgres/app_db}}
     ports: 
-      - 8080:8080
+      - 8040:8040
     volumes:
       - ./:/app/
