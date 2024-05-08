@@ -68,7 +68,7 @@ pub struct NewGroup {
 }
 
 #[derive(Queryable, AsChangeset, Serialize)]
-pub struct group_members {
+pub struct GroupMember {
     pub id: i32,
     pub user_id: i32,
     pub group_id: i32,
@@ -77,13 +77,13 @@ pub struct group_members {
 
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name=group_members)]
-pub struct NewGroup {
+pub struct NewGroupMember {
     pub user_id: i32,
     pub group_id: i32,
 }
 
 #[derive(Queryable, AsChangeset, Serialize)]
-pub struct Chats {
+pub struct Chat {
     pub id: i32,
     pub message: String,
     pub member_id: i32,
@@ -100,7 +100,7 @@ pub struct NewChat {
 }
 
 #[derive(Queryable, AsChangeset, Serialize)]
-pub struct GroupChats {
+pub struct GroupChat {
     pub id: i32,
     pub message: String,
     pub group_id: i32,
@@ -110,7 +110,7 @@ pub struct GroupChats {
 
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name=group_members)]
-pub struct NewGroupCHats {
+pub struct NewGroupChat {
     pub message: String,
     pub group_id: i32,
     pub to_member_id: i32,
