@@ -11,8 +11,8 @@ impl MemberRepository {
         members::table.find(id).get_result(conn).await
     }
 
-    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i32) -> QueryResult<Vec<Member>>{
-        members::table.limit(limit).get_result().await
+    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i64) -> QueryResult<Vec<Member>>{
+        members::table.limit(limit).get_results(conn).await
     }
 
     pub async fn create(conn: &mut AsyncPgConnection, new_member: NewMember) -> QueryResult<Member>{
@@ -22,12 +22,12 @@ impl MemberRepository {
     pub async fn update(conn: &mut AsyncPgConnection, member: Member) -> QueryResult<Member>{
         diesel::update(members::table.find(member.id)).set((
             members::name.eq(member.name),
-            members::email.ew(member.email),
-        ))
+            members::email.eq(member.email),
+        )).get_result(conn).await
     }
 
     pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize>{
-        diesel::delete(members::table.find(id)).execute(conn).await;
+        diesel::delete(members::table.find(id)).execute(conn).await
     }
 }
 
@@ -38,8 +38,8 @@ impl BookRepository {
         books::table.find(id).get_result(conn).await
     }
 
-    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i32) -> QueryResult<Vec<Book>>{
-        books::table.limit(limit).get_result().await
+    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i64) -> QueryResult<Vec<Book>>{
+        books::table.limit(limit).get_results(conn).await
     }
 
     pub async fn create(conn: &mut AsyncPgConnection, new_book: NewBook) -> QueryResult<Book>{
@@ -49,12 +49,12 @@ impl BookRepository {
     pub async fn update(conn: &mut AsyncPgConnection, book: Book) -> QueryResult<Book>{
         diesel::update(books::table.find(book.id)).set((
             books::name.eq(book.name),
-            books::email.ew(book.email),
-        ))
+            books::description.eq(book.description),
+        )).get_result(conn).await
     }
 
     pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize>{
-        diesel::delete(books::table.find(id)).execute(conn).await;
+        diesel::delete(books::table.find(id)).execute(conn).await
     }
 }
 
@@ -65,8 +65,8 @@ impl ReviewRepository {
         reviews::table.find(id).get_result(conn).await
     }
 
-    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i32) -> QueryResult<Vec<Review>>{
-        reviews::table.limit(limit).get_result().await
+    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i64) -> QueryResult<Vec<Review>>{
+        reviews::table.limit(limit).get_results(conn).await
     }
 
     pub async fn create(conn: &mut AsyncPgConnection, new_review: NewReview) -> QueryResult<Review>{
@@ -75,13 +75,14 @@ impl ReviewRepository {
 
     pub async fn update(conn: &mut AsyncPgConnection, review: Review) -> QueryResult<Review>{
         diesel::update(reviews::table.find(review.id)).set((
-            reviews::name.eq(review.name),
-            reviews::email.ew(review.email),
-        ))
+            reviews::review.eq(review.review),
+            reviews::member_id.eq(review.member_id),
+            reviews::book_id.eq(review.book_id),
+        )).get_result(conn).await
     }
 
     pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize>{
-        diesel::delete(reviews::table.find(id)).execute(conn).await;
+        diesel::delete(reviews::table.find(id)).execute(conn).await
     }
 }
 
@@ -92,8 +93,8 @@ impl GroupRepository {
         groups::table.find(id).get_result(conn).await
     }
 
-    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i32) -> QueryResult<Vec<Group>>{
-        groups::table.limit(limit).get_result().await
+    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i64) -> QueryResult<Vec<Group>>{
+        groups::table.limit(limit).get_results(conn).await
     }
 
     pub async fn create(conn: &mut AsyncPgConnection, new_group: NewGroup) -> QueryResult<Group>{
@@ -103,12 +104,12 @@ impl GroupRepository {
     pub async fn update(conn: &mut AsyncPgConnection, group: Group) -> QueryResult<Group>{
         diesel::update(groups::table.find(group.id)).set((
             groups::name.eq(group.name),
-            groups::email.ew(group.email),
-        ))
+            groups::current_book_id.eq(group.current_book_id),
+        )).get_result(conn).await
     }
 
     pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize>{
-        diesel::delete(groups::table.find(id)).execute(conn).await;
+        diesel::delete(groups::table.find(id)).execute(conn).await
     }
 }
 
@@ -119,8 +120,8 @@ impl GroupMemberRepository {
         group_members::table.find(id).get_result(conn).await
     }
 
-    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i32) -> QueryResult<Vec<GroupMember>>{
-        group_members::table.limit(limit).get_result().await
+    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i64) -> QueryResult<Vec<GroupMember>>{
+        group_members::table.limit(limit).get_results(conn).await
     }
 
     pub async fn create(conn: &mut AsyncPgConnection, new_group_member: NewGroupMember) -> QueryResult<GroupMember>{
@@ -129,13 +130,40 @@ impl GroupMemberRepository {
 
     pub async fn update(conn: &mut AsyncPgConnection, group_member: GroupMember) -> QueryResult<GroupMember>{
         diesel::update(group_members::table.find(group_member.id)).set((
-            group_members::name.eq(group_member.name),
-            group_members::email.ew(group_member.email),
-        ))
+            group_members::user_id.eq(group_member.user_id),
+            group_members::group_id.eq(group_member.group_id),
+        )).get_result(conn).await
     }
 
     pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize>{
-        diesel::delete(group_members::table.find(id)).execute(conn).await;
+        diesel::delete(group_members::table.find(id)).execute(conn).await
+    }
+}
+pub struct ChatRepository;
+
+impl ChatRepository {
+    pub async fn find(conn: &mut AsyncPgConnection, id:i32) -> QueryResult<Chat>{
+        chats::table.find(id).get_result(conn).await
+    }
+
+    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i64) -> QueryResult<Vec<Chat>>{
+        chats::table.limit(limit).get_results(conn).await
+    }
+
+    pub async fn create(conn: &mut AsyncPgConnection, new_chat: NewChat) -> QueryResult<Chat>{
+        diesel::insert_into(chats::table).values(new_chat).get_result(conn).await
+    }
+
+    pub async fn update(conn: &mut AsyncPgConnection, chat: Chat) -> QueryResult<Chat>{
+        diesel::update(chats::table.find(chat.id)).set((
+            chats::message.eq(chat.message),
+            chats::member_id.eq(chat.member_id),
+            chats::to_member_id.eq(chat.to_member_id),
+        )).get_result(conn).await
+    }
+
+    pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize>{
+        diesel::delete(chats::table.find(id)).execute(conn).await
     }
 }
 
@@ -146,8 +174,8 @@ impl GroupChatRepository {
         group_chats::table.find(id).get_result(conn).await
     }
 
-    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i32) -> QueryResult<Vec<GroupChat>>{
-        group_chats::table.limit(limit).get_result().await
+    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i64) -> QueryResult<Vec<GroupChat>>{
+        group_chats::table.limit(limit).get_results(conn).await
     }
 
     pub async fn create(conn: &mut AsyncPgConnection, new_group_chat: NewGroupChat) -> QueryResult<GroupChat>{
@@ -156,39 +184,13 @@ impl GroupChatRepository {
 
     pub async fn update(conn: &mut AsyncPgConnection, group_chat: GroupChat) -> QueryResult<GroupChat>{
         diesel::update(group_chats::table.find(group_chat.id)).set((
-            group_chats::name.eq(group_chat.name),
-            group_chats::email.ew(group_chat.email),
-        ))
+            group_chats::message.eq(group_chat.message),
+            group_chats::group_id.eq(group_chat.group_id),
+            group_chats::to_member_id.eq(group_chat.to_member_id),
+        )).get_result(conn).await
     }
 
     pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize>{
-        diesel::delete(group_chats::table.find(id)).execute(conn).await;
-    }
-}
-
-pub struct ChatRepository;
-
-impl ChatRepository {
-    pub async fn find(conn: &mut AsyncPgConnection, id:i32) -> QueryResult<Chat>{
-        chats::table.find(id).get_result(conn).await
-    }
-
-    pub async fn find_multiple(conn: &mut AsyncPgConnection, limit:i32) -> QueryResult<Vec<Chat>>{
-        chats::table.limit(limit).get_result().await
-    }
-
-    pub async fn create(conn: &mut AsyncPgConnection, new_chat: NewChat) -> QueryResult<Chat>{
-        diesel::insert_into(chats::table).values(new_chat).get_result(conn).await
-    }
-
-    pub async fn update(conn: &mut AsyncPgConnection, chat: Chat) -> QueryResult<Chat>{
-        diesel::update(chats::table.find(chat.id)).set((
-            chats::name.eq(chat.name),
-            chats::email.ew(chat.email),
-        ))
-    }
-
-    pub async fn delete(conn: &mut AsyncPgConnection, id: i32) -> QueryResult<usize>{
-        diesel::delete(chats::table.find(id)).execute(conn).await;
+        diesel::delete(group_chats::table.find(id)).execute(conn).await
     }
 }
