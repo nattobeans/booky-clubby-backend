@@ -25,7 +25,7 @@ fn test_create_book() {
     assert_eq!(book_response, json!({
         "id": book_response["id"],
         "name": "create_test",
-        "description": "create_test@gmail.com",
+        "description": "This book is for creating stuff",
         "created_at": book_response["created_at"],
     }))
 }
@@ -92,8 +92,6 @@ fn test_get_book() {
     let response = client.get(format!("http://127.0.0.1:8000/books/{}", book_response["id"])).send().unwrap();
     assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR)
 }
-
-
 
 
 #[test]
@@ -169,7 +167,7 @@ fn test_update_book() {
     let response = client.post("http://127.0.0.1:8000/books")
         .json(&json!({
             "name": "update_test",
-            "description": "update_test@gmail.com"
+            "description": "update_test_book",
         }))
         .send()
         .unwrap();

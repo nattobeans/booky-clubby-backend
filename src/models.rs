@@ -25,6 +25,7 @@ pub struct Book {
     pub id: i32,
     pub name: String,
     pub description: String,
+    #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
 }
 
@@ -41,6 +42,7 @@ pub struct Review {
     pub review: String,
     pub member_id: i32,
     pub book_id: i32,
+    #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
 }
 
@@ -57,6 +59,7 @@ pub struct Group {
     pub id: i32,
     pub name: String,
     pub current_book_id: i32,
+    #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
 }
 
@@ -72,6 +75,7 @@ pub struct GroupMember {
     pub id: i32,
     pub user_id: i32,
     pub group_id: i32,
+    #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
 }
 
@@ -88,6 +92,7 @@ pub struct Chat {
     pub message: String,
     pub member_id: i32,
     pub to_member_id: i32,
+    #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
 }
 
@@ -105,6 +110,7 @@ pub struct GroupChat {
     pub message: String,
     pub group_id: i32,
     pub to_member_id: i32,
+    #[serde(skip_deserializing)]
     pub created_at: NaiveDateTime,
 }
 
